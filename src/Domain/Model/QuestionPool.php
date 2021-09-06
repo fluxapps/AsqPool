@@ -86,7 +86,7 @@ class QuestionPool extends AbstractAggregateRoot
         $this->data = $event->getData();
     }
 
-    public function getConfiguration(string $config_for) : AbstractValueObject
+    public function getConfiguration(string $config_for) : ?AbstractValueObject
     {
         return $this->configurations[$config_for];
     }

@@ -165,7 +165,7 @@ class QuestionPoolService extends ASQService
         );
     }
 
-    public function getPoolConfiguration(Uuid $pool_id, string $config_for) : AbstractValueObject
+    public function getPoolConfiguration(Uuid $pool_id, string $config_for) : ?AbstractValueObject
     {
         /** @var $pool QuestionPool */
         $pool = $this->repo->getAggregateRootById($pool_id);
