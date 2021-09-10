@@ -34,15 +34,9 @@ use srag\asq\QuestionPool\Application\Command\CreatePoolCommandHandler;
 
 class QuestionPoolService extends ASQService
 {
-    /**
-     * @var CommandBus
-     */
-    private $command_bus;
+    private CommandBus $command_bus;
 
-    /**
-     * @var QuestionPoolRepository
-     */
-    private $repo;
+    private QuestionPoolRepository $repo;
 
     public function __construct()
     {
@@ -78,10 +72,12 @@ class QuestionPoolService extends ASQService
     /**
      * @return Uuid
      */
-    public function createQuestionPool(?string $name = null, ?string $description = null) : Uuid
+    public function createQuestionPool(?string $name = null, ?string $description = null, Uuid $uuid = null) : Uuid
     {
-        $uuid_factory = new Factory();
-        $uuid = $uuid_factory->uuid4();
+        if ($uuid === null) {
+            $uuid_factory = new Factory();
+            $uuid = $uuid_factory->uuid4();
+        }
 
         $data = new QuestionPoolData($name, $description);
 
@@ -150,12 +146,12 @@ class QuestionPoolService extends ASQService
         return $pool->getData();
     }
 
-    public function storePoolConfiguration(Uuid $pool_id, AbstractValueObject $config, string $config_for) : void
+    public function setConfiguration(Uuid $pool_id, AbstractValueObject $config, string $config_for) : void
     {
         /** @var $pool QuestionPool */
         $pool = $this->repo->getAggregateRootById($pool_id);
 
-        $pool->setConfiguration($config_for, $config, $this->getActiveUser());
+        $pool->setConfiguration($config, $config_for, $this->getActiveUser());
 
         $this->command_bus->handle(
             new StorePoolCommand(
@@ -165,12 +161,35 @@ class QuestionPoolService extends ASQService
         );
     }
 
-    public function getPoolConfiguration(Uuid $pool_id, string $config_for) : ?AbstractValueObject
+    public function getConfiguration(Uuid $pool_id, string $config_for) : ?AbstractValueObject
     {
         /** @var $pool QuestionPool */
         $pool = $this->repo->getAggregateRootById($pool_id);
 
         return $pool->getConfiguration($config_for);
+    }
+
+    public function getConfigurations(Uuid $pool_id) : ?array
+    {
+        /** @var $pool QuestionPool */
+        $pool = $this->repo->getAggregateRootById($pool_id);
+
+        return $pool->getConfigurations();
+    }
+
+    public function removeConfiguration(Uuid $pool_id, string $config_for) : void
+    {
+        /** @var $pool QuestionPool */
+        $pool = $this->repo->getAggregateRootById($pool_id);
+
+        $pool->removeConfiguration($config_for, $this->getActiveUser());
+
+        $this->command_bus->handle(
+            new StorePoolCommand(
+                $pool,
+                $this->getActiveUser()
+            )
+        );
     }
 
     /**

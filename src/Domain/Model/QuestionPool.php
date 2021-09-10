@@ -3,6 +3,7 @@ declare(strict_types = 1);
 
 namespace srag\asq\QuestionPool\Domain\Model;
 
+use Fluxlabs\Assessment\Tools\Domain\Model\PluginAggregateRoot;
 use srag\asq\QuestionPool\Domain\Event\PoolConfigurationSetEvent;
 use srag\asq\QuestionPool\Domain\Event\PoolDataSetEvent;
 use srag\CQRS\Aggregate\AbstractAggregateRoot;
@@ -22,7 +23,7 @@ use srag\asq\QuestionPool\Domain\Event\QuestionRemovedEvent;
  *
  * @author fluxlabs ag - Adrian Lüthi <adi@fluxlabs.ch>
  */
-class QuestionPool extends AbstractAggregateRoot
+class QuestionPool extends PluginAggregateRoot
 {
     const DATA = 'qpd';
 
@@ -32,11 +33,6 @@ class QuestionPool extends AbstractAggregateRoot
     protected array $questions = [];
 
     protected QuestionPoolData $data;
-
-    /**
-     * @var AbstractValueObject[]
-     */
-    protected array $configurations = [];
 
     public static function create(
         Uuid $uuid,
@@ -84,28 +80,6 @@ class QuestionPool extends AbstractAggregateRoot
     protected function applyPoolDataSetEvent(PoolDataSetEvent $event) : void
     {
         $this->data = $event->getData();
-    }
-
-    public function getConfiguration(string $config_for) : ?AbstractValueObject
-    {
-        return $this->configurations[$config_for];
-    }
-
-    public function setConfiguration(string $config_for, AbstractValueObject $config, int $user_id) : void
-    {
-        $this->ExecuteEvent(
-            new PoolConfigurationSetEvent(
-                $this->aggregate_id,
-                new ilDateTime(time(), IL_CAL_UNIX),
-                $user_id,
-                $config,
-                $config_for)
-        );
-    }
-
-    protected function applyPoolConfigurationSetEvent(PoolConfigurationSetEvent $event) :void
-    {
-        $this->configurations[$event->getConfigFor()] = $event->getConfig();
     }
 
     public function addQuestion(Uuid $question_id, int $user_id) : void

@@ -1,98 +1,104 @@
 <?php
 declare(strict_types = 1);
 
-namespace srag\asq\QuestionPool\UI;
+namespace srag\asq\QuestionPool\Module\UI;
 
 use Fluxlabs\Assessment\Tools\DIC\CtrlTrait;
+use Fluxlabs\Assessment\Tools\DIC\KitchenSinkTrait;
+use Fluxlabs\Assessment\Tools\Domain\IObjectAccess;
+use Fluxlabs\Assessment\Tools\Domain\Modules\AbstractAsqModule;
+use Fluxlabs\Assessment\Tools\Event\IEventQueue;
+use Fluxlabs\Assessment\Tools\Event\Standard\AddTabEvent;
+use Fluxlabs\Assessment\Tools\Event\Standard\SetUIEvent;
+use Fluxlabs\Assessment\Tools\UI\Components\AsqTable;
+use Fluxlabs\Assessment\Tools\UI\System\TabDefinition;
+use Fluxlabs\Assessment\Tools\UI\System\UIData;
 use ILIAS\Data\UUID\Factory;
 use ILIAS\Data\UUID\Uuid;
-use ilLinkButton;
-use ilObjTaxonomy;
-use ilTable2GUI;
-use ilTemplate;
 use ilUtil;
 use srag\asq\Application\Service\AsqServices;
 use srag\asq\Domain\QuestionDto;
 use srag\asq\Infrastructure\Helpers\PathHelper;
-use srag\asq\QuestionPool\Application\QuestionPoolService;
-use srag\asq\QuestionPool\Domain\Model\TaxonomyData;
+use srag\asq\QuestionPool\Module\QuestionService\ASQModule;
+use srag\asq\QuestionPool\Module\Storage\QuestionPoolStorage;
 
 /**
- * Class QuestionPoolEventStore
+ * Class QuestionListGUI
  *
  * @package srag\asq\QuestionPool
  *
  * @author studer + raimann ag - Team Core 2 <al@studer-raimann.ch>
  */
-class QuestionListGUI
+class QuestionListGUI extends AbstractAsqModule
 {
     use PathHelper;
     use CtrlTrait;
+    use KitchenSinkTrait;
 
-    const CMD_QUESTION_ACTION = 'questionAction';
-    const CMD_ADD_TAXONOMY = 'addTaxonomy';
-    const CMD_EDIT_TAXONOMY = 'editTaxonomy';
-    const CMD_REMOVE_TAXONOMY = 'removeTaxonomy';
+    const CMD_DELETE_QUESTION = 'deleteQuestion';
+    const CMD_SHOW_QUESTIONS = "showQuestions";
 
+    const COL_ID = 'QUESTION_ID';
     const COL_TITLE = 'QUESTION_TITLE';
     const COL_TYPE = 'QUESTION_TYPE';
     const COL_AUTHOR = 'QUESTION_AUTHOR';
-    const COL_EDIT_LINK = "QUESTION_EDIT_LINK";
     const COL_VERSIONS = 'QUESTION_VERSIONS';
     const COL_STATUS = 'QUESTION_STATUS';
-    const COL_ID = 'QUESTION_ID';
+    const COL_EDIT_LINK = "QUESTION_EDIT_LINK";
+
 
     const VAL_NO_TITLE = '-----';
-    const VAR_ACTION = 'selectedAction';
-    const VAR_ACTION_DELETE = 'deleteQuestion';
-
-    const KEY_TAXONOMY = 'pool_taxonomy';
 
     private Uuid $pool_id;
 
-    private QuestionPoolService $pool_service;
+    private QuestionPoolStorage $data;
 
     private AsqServices $asq_service;
 
     private Factory $uuid_factory;
 
-    private ?TaxonomyData $taxonomy_data;
-
-    public function __construct(Uuid $pool_id)
+    public function __construct(IEventQueue $event_queue, IObjectAccess $access, QuestionPoolStorage $data)
     {
-        global $ASQDIC;
+        parent::__construct($event_queue, $access);
 
+        global $ASQDIC, $DIC;
         $this->asq_service = $ASQDIC->asq();
-        $this->pool_service = new QuestionPoolService();
         $this->uuid_factory = new Factory();
+        $this->data = $data;
 
-        $this->pool_id = $pool_id;
-        $this->taxonomy_data = $this->pool_service->getPoolConfiguration($this->pool_id, self::KEY_TAXONOMY);
+        $this->raiseEvent(new AddTabEvent(
+            $this,
+            new TabDefinition(self::class, 'Questions', self::CMD_SHOW_QUESTIONS)
+        ));
     }
 
-    public function createQuestionTable($parent) : ilTable2GUI
+    public function showQuestions() : void
     {
-        $question_table = new ilTable2GUI($parent);
-        $question_table->setRowTemplate('tpl.questions_row.html', $this->getBasePath(__DIR__));
-        $question_table->addColumn('');
-        $question_table->addColumn('TODO header_title', self::COL_TITLE);
-        $question_table->addColumn('TODO header_type', self::COL_TYPE);
-        $question_table->addColumn('TODO header_creator', self::COL_AUTHOR);
-        $question_table->addColumn('TODO header_versions', self::COL_VERSIONS);
-        $question_table->addColumn('TODO header_status', self::COL_STATUS);
+        $this->raiseEvent(new SetUIEvent($this, new UIData(
+            'Questions',
+            $this->renderContent(),
+            null,
+            $this->getToolbarButtons()
+        )));
+    }
 
-        $question_table->addMultiItemSelectionButton(
-            self::VAR_ACTION,
-            [
-                self::VAR_ACTION_DELETE => 'TODO delete_question'
-            ],
-            self::CMD_QUESTION_ACTION,
-            'TODO execute'
-        );
+    public function renderContent() : string
+    {
+        $question_table = new AsqTable([
+            self::COL_ID => '',
+            self::COL_TITLE => 'TODO header_title',
+            self::COL_TYPE => 'TODO header_type',
+            self::COL_AUTHOR => 'TODO header_creator',
+            self::COL_VERSIONS => 'TODO header_versions',
+            self::COL_STATUS => 'TODO header_status'
+        ],
+        $this->getQuestionsAsAssocArray(),
+        [
+            'TODO Delete Questions' => $this->getCommandLink(self::CMD_DELETE_QUESTION)
+        ]);
 
-        $question_table->setData($this->getQuestionsAsAssocArray());
 
-        return $question_table;
+        return $question_table->render();
     }
 
     public function getToolbarButtons() : array
@@ -100,28 +106,11 @@ class QuestionListGUI
         $buttons = [];
 
         $link = $this->asq_service->link()->getCreationLink();
-        $link_button = ilLinkButton::getInstance();
-        $link_button->setUrl($link->getAction());
-        $link_button->setCaption($link->getLabel(), false);
+        $link_button = $this->getKSFactory()->button()->standard(
+            $link->getLabel(),
+            $link->getAction()
+        );
         $buttons[] = $link_button;
-
-        if ($this->taxonomy_data === null) {
-            $add_taxonomy = ilLinkButton::getInstance();
-            $add_taxonomy->setUrl($this->getCommandLink(self::CMD_ADD_TAXONOMY));
-            $add_taxonomy->setCaption('TODO Add Taxonomy', false);
-            $buttons[] = $add_taxonomy;
-        }
-        else {
-            $edit_taxonomy = ilLinkButton::getInstance();
-            $edit_taxonomy->setUrl($this->getCommandLink(self::CMD_EDIT_TAXONOMY));
-            $edit_taxonomy->setCaption('TODO Edit Taxonomy', false);
-            $buttons[] = $edit_taxonomy;
-
-            $remove_taxonomy = ilLinkButton::getInstance();
-            $remove_taxonomy->setUrl($this->getCommandLink(self::CMD_REMOVE_TAXONOMY));
-            $remove_taxonomy->setCaption('TODO Remove Taxonomy', false);
-            $buttons[] = $remove_taxonomy;
-        }
 
         return $buttons;
     }
@@ -130,7 +119,7 @@ class QuestionListGUI
     private function getQuestionsAsAssocArray() : array
     {
         $assoc_array = [];
-        $items = $this->pool_service->getQuestionsOfPool($this->pool_id);
+        $items = $this->data->getQuestionsOfPool();
 
         if (is_null($items)) {
             return $assoc_array;
@@ -142,7 +131,7 @@ class QuestionListGUI
             $data = $question_dto->getData();
 
             $question_array[self::COL_TITLE] = is_null($data) ? self::VAL_NO_TITLE : (empty($data->getTitle()) ? self::VAL_NO_TITLE : $data->getTitle());
-            $question_array[self::COL_TYPE] = 'TODO TRANS' . $question_dto->getType()->getTitleKey();
+            $question_array[self::COL_TYPE] = 'TODO TRANS ' . $question_dto->getType()->getTitleKey();
             $question_array[self::COL_AUTHOR] = is_null($data) ? '' : $data->getAuthor();
             $question_array[self::COL_EDIT_LINK] = $this->asq_service->link()->getEditLink($question_dto->getId())->getAction();
             $question_array[self::COL_VERSIONS] = $this->getVersionsInfo($item);
@@ -196,11 +185,11 @@ class QuestionListGUI
         }
     }
 
-    public function addTaxonomy() : void
+    public function getCommands(): array
     {
-        $taxonomy = new ilObjTaxonomy();
-        $taxonomy->create();
-        $tax_data = new TaxonomyData($taxonomy->getId());
-        $this->pool_service->storePoolConfiguration(self::KEY_TAXONOMY, $tax_data);
+        return [
+            self::CMD_SHOW_QUESTIONS,
+            self::CMD_DELETE_QUESTION
+        ];
     }
 }
