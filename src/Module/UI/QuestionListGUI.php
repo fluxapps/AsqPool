@@ -90,7 +90,8 @@ class QuestionListGUI extends AbstractAsqModule
             self::COL_TYPE => 'TODO header_type',
             self::COL_AUTHOR => 'TODO header_creator',
             self::COL_VERSIONS => 'TODO header_versions',
-            self::COL_STATUS => 'TODO header_status'
+            self::COL_STATUS => 'TODO header_status',
+            self::COL_EDIT_LINK => ''
         ],
         $this->getQuestionsAsAssocArray(),
         [
@@ -133,7 +134,7 @@ class QuestionListGUI extends AbstractAsqModule
             $question_array[self::COL_TITLE] = is_null($data) ? self::VAL_NO_TITLE : (empty($data->getTitle()) ? self::VAL_NO_TITLE : $data->getTitle());
             $question_array[self::COL_TYPE] = 'TODO TRANS ' . $question_dto->getType()->getTitleKey();
             $question_array[self::COL_AUTHOR] = is_null($data) ? '' : $data->getAuthor();
-            $question_array[self::COL_EDIT_LINK] = $this->asq_service->link()->getEditLink($question_dto->getId())->getAction();
+            $question_array[self::COL_EDIT_LINK] = $this->getRowActions($question_dto);
             $question_array[self::COL_VERSIONS] = $this->getVersionsInfo($item);
             $question_array[self::COL_STATUS] = $this->getStatus($question_dto);
             $question_array[self::COL_ID] = $question_dto->getId();
@@ -171,6 +172,15 @@ class QuestionListGUI extends AbstractAsqModule
         }
 
         return sprintf('<img src="%s" style="height: 20px;" />', $img);
+    }
+
+    private function getRowActions(QuestionDto $question) : string
+    {
+        $link = $this->asq_service->link()->getEditLink($question->getId());
+
+        $button = $this->getKSFactory()->button()->shy($link->getLabel(), $link->getAction());
+
+        return $this->renderKSComponent($button);
     }
 
     public function deleteQuestion() : void
