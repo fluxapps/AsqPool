@@ -5,7 +5,7 @@ namespace srag\asq\QuestionPool\Application\Command;
 
 use ILIAS\Data\UUID\Uuid;
 use srag\asq\QuestionPool\Domain\Model\QuestionPool;
-use srag\CQRS\Command\AbstractCommand;
+use Fluxlabs\CQRS\Command\AbstractCommand;
 
 /**
  * Class StorePoolCommand

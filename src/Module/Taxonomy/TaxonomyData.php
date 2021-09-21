@@ -3,7 +3,7 @@ declare(strict_types = 1);
 
 namespace srag\asq\QuestionPool\Module\Taxonomy;
 
-use srag\CQRS\Aggregate\AbstractValueObject;
+use Fluxlabs\CQRS\Aggregate\AbstractValueObject;
 
 /**
  * Class TaxonomyData

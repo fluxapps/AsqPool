@@ -4,10 +4,10 @@ declare(strict_types = 1);
 namespace srag\asq\QuestionPool\Domain\Model;
 
 use srag\asq\QuestionPool\Application\QuestionPoolService;
-use srag\CQRS\Aggregate\AbstractAggregateRepository;
-use srag\CQRS\Aggregate\AbstractAggregateRoot;
-use srag\CQRS\Event\DomainEvents;
-use srag\CQRS\Event\EventStore;
+use Fluxlabs\CQRS\Aggregate\AbstractAggregateRepository;
+use Fluxlabs\CQRS\Aggregate\AbstractAggregateRoot;
+use Fluxlabs\CQRS\Event\DomainEvents;
+use Fluxlabs\CQRS\Event\EventStore;
 use srag\asq\QuestionPool\Domain\Persistence\QuestionPoolEventStore;
 
 /**

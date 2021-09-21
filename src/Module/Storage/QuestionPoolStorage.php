@@ -11,7 +11,7 @@ use ILIAS\Data\UUID\Uuid;
 use srag\asq\QuestionPool\Application\QuestionPoolService;
 use srag\asq\QuestionPool\Module\Storage\Event\QuestionAddedEvent;
 use srag\asq\QuestionPool\Module\Storage\Event\QuestionDeletedEvent;
-use srag\CQRS\Aggregate\AbstractValueObject;
+use Fluxlabs\CQRS\Aggregate\AbstractValueObject;
 
 /**
  * Class QuestionPoolStorage

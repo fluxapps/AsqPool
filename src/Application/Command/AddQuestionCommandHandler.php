@@ -5,8 +5,8 @@ namespace srag\asq\QuestionPool\Application\Command;
 
 use ILIAS\Data\Result;
 use ILIAS\Data\Result\Ok;
-use srag\CQRS\Command\CommandContract;
-use srag\CQRS\Command\CommandHandlerContract;
+use Fluxlabs\CQRS\Command\CommandContract;
+use Fluxlabs\CQRS\Command\CommandHandlerContract;
 use srag\asq\QuestionPool\Domain\Model\QuestionPool;
 use srag\asq\QuestionPool\Domain\Model\QuestionPoolRepository;
 

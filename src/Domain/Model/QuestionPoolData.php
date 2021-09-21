@@ -3,9 +3,9 @@ declare(strict_types = 1);
 
 namespace srag\asq\QuestionPool\Domain\Model;
 
-use srag\CQRS\Aggregate\AbstractAggregateRoot;
-use srag\CQRS\Aggregate\AbstractValueObject;
-use srag\CQRS\Event\Standard\AggregateCreatedEvent;
+use Fluxlabs\CQRS\Aggregate\AbstractAggregateRoot;
+use Fluxlabs\CQRS\Aggregate\AbstractValueObject;
+use Fluxlabs\CQRS\Event\Standard\AggregateCreatedEvent;
 use ILIAS\Data\UUID\Uuid;
 use ilDateTime;
 use srag\asq\Application\Exception\AsqException;

@@ -4,7 +4,7 @@ declare(strict_types = 1);
 namespace srag\asq\QuestionPool\Application\Command;
 
 use ILIAS\Data\UUID\Uuid;
-use srag\CQRS\Command\AbstractCommand;
+use Fluxlabs\CQRS\Command\AbstractCommand;
 
 /**
  * Class RemoveQuestionCommand
