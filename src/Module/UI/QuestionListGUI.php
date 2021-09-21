@@ -21,6 +21,7 @@ use srag\asq\Domain\QuestionDto;
 use srag\asq\Infrastructure\Helpers\PathHelper;
 use srag\asq\QuestionPool\Module\QuestionService\ASQModule;
 use srag\asq\QuestionPool\Module\Storage\QuestionPoolStorage;
+use srag\asq\QuestionPool\Module\Taxonomy\TaxonomyModule;
 
 /**
  * Class QuestionListGUI
@@ -57,14 +58,17 @@ class QuestionListGUI extends AbstractAsqModule
 
     private Factory $uuid_factory;
 
-    public function __construct(IEventQueue $event_queue, IObjectAccess $access, QuestionPoolStorage $data)
+    private TaxonomyModule $taxonomies;
+
+    public function __construct(IEventQueue $event_queue, IObjectAccess $access)
     {
         parent::__construct($event_queue, $access);
 
         global $ASQDIC, $DIC;
         $this->asq_service = $ASQDIC->asq();
         $this->uuid_factory = new Factory();
-        $this->data = $data;
+        $this->data = $this->access->getStorage();
+        $this->taxonomies = $this->access->getModule(TaxonomyModule::class);
 
         $this->raiseEvent(new AddTabEvent(
             $this,
@@ -112,6 +116,8 @@ class QuestionListGUI extends AbstractAsqModule
             $link->getAction()
         );
         $buttons[] = $link_button;
+
+        $buttons[] = $this->taxonomies->getTaxonomyButton();
 
         return $buttons;
     }

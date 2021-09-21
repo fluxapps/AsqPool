@@ -5,6 +5,7 @@ namespace srag\asq\QuestionPool\Module\QuestionService;
 
 use AsqQuestionAuthoringGUI;
 use Fluxlabs\Assessment\Tools\DIC\CtrlTrait;
+use Fluxlabs\Assessment\Tools\DIC\KitchenSinkTrait;
 use Fluxlabs\Assessment\Tools\Domain\IObjectAccess;
 use Fluxlabs\Assessment\Tools\Domain\Modules\AbstractAsqModule;
 use Fluxlabs\Assessment\Tools\Event\IEventQueue;
@@ -25,6 +26,7 @@ use srag\asq\QuestionPool\Module\UI\QuestionListGUI;
 class ASQModule extends AbstractAsqModule implements IAuthoringCaller
 {
     use CtrlTrait;
+    use KitchenSinkTrait;
 
     private AsqServices $asq_services;
 
@@ -39,10 +41,8 @@ class ASQModule extends AbstractAsqModule implements IAuthoringCaller
 
     public function executeTransfer(string $transfer) : void
     {
-        global $DIC;
-
-        $backLink = $DIC->ui()->factory()->link()->standard(
-            $DIC->language()->txt('back'),
+        $backLink = $this->getKSFactory()->link()->standard(
+            'TODO back',
             $this->getCommandLink(QuestionListGUI::CMD_SHOW_QUESTIONS)
         );
 
@@ -51,6 +51,8 @@ class ASQModule extends AbstractAsqModule implements IAuthoringCaller
             $backLink,
             $this
         );
+
+        global $DIC;
 
         $asq = new AsqQuestionAuthoringGUI(
             $authoring_context_container,

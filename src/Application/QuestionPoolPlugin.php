@@ -4,9 +4,11 @@ declare(strict_types = 1);
 namespace srag\asq\QuestionPool\Application;
 
 use Fluxlabs\Assessment\Tools\Domain\AbstractAsqPlugin;
+use Fluxlabs\Assessment\Tools\Domain\ILIASReference;
 use ILIAS\Data\UUID\Uuid;
 use srag\asq\QuestionPool\Module\QuestionService\ASQModule;
 use srag\asq\QuestionPool\Module\Storage\QuestionPoolStorage;
+use srag\asq\QuestionPool\Module\Taxonomy\TaxonomyModule;
 use srag\asq\QuestionPool\Module\UI\QuestionListGUI;
 
 /**
@@ -18,33 +20,34 @@ use srag\asq\QuestionPool\Module\UI\QuestionListGUI;
  */
 class QuestionPoolPlugin extends AbstractAsqPlugin
 {
-    private function __construct(Uuid $pool_id)
+    private function __construct(ILIASReference $reference)
     {
-        parent::__construct();
+        parent::__construct($reference);
 
-        $storage = new QuestionPoolStorage($this->event_queue, $this->access, $pool_id);
+        $storage = new QuestionPoolStorage($this->event_queue, $this->access, $reference->getId());
         $this->addModule($storage);
 
         $this->addModule(new ASQModule($this->event_queue, $this->access));
 
+        $this->addModule(new TaxonomyModule($this->event_queue, $this->access, $reference));
+
         $this->addModule(new QuestionListGUI(
             $this->event_queue,
-            $this->access,
-            $storage
+            $this->access
         ));
     }
 
-    public static function load(Uuid $test_id) : QuestionPoolPlugin
+    public static function load(ILIASReference $reference) : QuestionPoolPlugin
     {
-        return new QuestionPoolPlugin($test_id);
+        return new QuestionPoolPlugin($reference);
     }
 
-    public static function create(Uuid $test_id, string $title, string $description) : QuestionPoolPlugin
+    public static function create(ILIASReference $reference, string $title, string $description) : QuestionPoolPlugin
     {
         $service = new QuestionPoolService();
-        $service->createQuestionPool($title, $description, $test_id);
+        $service->createQuestionPool($title, $description, $reference->getId());
 
-        return new QuestionPoolPlugin($test_id);
+        return new QuestionPoolPlugin($reference);
     }
 
     public static function getInitialCommand(): string

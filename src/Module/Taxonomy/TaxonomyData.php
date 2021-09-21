@@ -1,16 +1,9 @@
 <?php
 declare(strict_types = 1);
 
-namespace srag\asq\QuestionPool\Domain\Model;
+namespace srag\asq\QuestionPool\Module\Taxonomy;
 
-use srag\CQRS\Aggregate\AbstractAggregateRoot;
 use srag\CQRS\Aggregate\AbstractValueObject;
-use srag\CQRS\Event\Standard\AggregateCreatedEvent;
-use ILIAS\Data\UUID\Uuid;
-use ilDateTime;
-use srag\asq\Application\Exception\AsqException;
-use srag\asq\QuestionPool\Domain\Event\QuestionAddedEvent;
-use srag\asq\QuestionPool\Domain\Event\QuestionRemovedEvent;
 
 /**
  * Class TaxonomyData
@@ -26,7 +19,8 @@ class TaxonomyData extends AbstractValueObject
     public ?array $question_mapping;
 
     public function __construct(?int $taxonomy_id = null,
-                                ?array $question_mapping = null) {
+                                ?array $question_mapping = null)
+    {
         $this->taxonomy_id = $taxonomy_id;
         $this->question_mapping = $question_mapping;
     }

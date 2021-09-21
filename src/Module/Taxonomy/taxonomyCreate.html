@@ -1,0 +1,17 @@
+<form>
+    <div class="form-horizontal">
+        <div class="form-group">
+            <label class="col-sm-3 control-label" for="title">{TITLE}</label>
+            <div class="col-sm-9">
+                <input id="{TITLE_KEY}" class="form-control" aria-label="{TITLE}" type="text" maxlength="255" name="{TITLE_KEY}" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label" for="description">{DESCRIPTION}</label>
+            <div class="col-sm-9">
+                <textarea id="{DESCRIPTION_KEY}" class="form-control" name="{DESCRIPTION_KEY}"></textarea>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-default" formaction="{CREATE_ACTION}" formmethod="post">{CREATE}</button>
+    </div>
+</form>
