@@ -1,0 +1,20 @@
+<form>
+    <table class="table table-striped fullwidth dcl_record_list">
+        <tbody>
+        <!-- BEGIN content -->
+        <tr>
+            <td>{DEPTH}</td>
+            <td>{TITLE}</td>
+            <td>
+                <input type="text" name="{ADD_CHILD_TITLE}" />
+                <button class="btn btn-default" formmethod="post" formaction="{ADD_ACTION}">{ADD}</button>
+                <button class="btn btn-default" formmethod="post" formaction="{EDIT_ACTION}">{EDIT}</button>
+                <!-- BEGIN delete -->
+                <button class="btn btn-default" formmethod="post" formaction="{DELETE_ACTION}">{DELETE}</button>
+                <!-- END delete -->
+            </td>
+        </tr>
+        <!-- END content -->
+        </tbody>
+    </table>
+</form>

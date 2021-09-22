@@ -19,17 +19,14 @@ class TaxonomyCreateGUI
     use PathHelper;
     use CtrlTrait;
 
-    const PARAM_TITLE = 'title';
-    const PARAM_DESCRIPTION = 'description';
-
     public function render() : string
     {
         $tpl = new ilTemplate($this->getBasePath(__DIR__) . 'src/Module/Taxonomy/taxonomyCreate.html', true, true);
 
         $tpl->setVariable('TITLE','TODO_Titel');
-        $tpl->setVariable('TITLE_KEY',self::PARAM_TITLE);
+        $tpl->setVariable('TITLE_KEY',TaxonomyModule::TITLE_KEY);
         $tpl->setVariable('DESCRIPTION', 'TODO_Description');
-        $tpl->setVariable('DESCRIPTION_KEY', self::PARAM_DESCRIPTION);
+        $tpl->setVariable('DESCRIPTION_KEY', TaxonomyModule::DESCRIPTION_KEY);
         $tpl->setVariable('CREATE', 'TODO_Create');
         $tpl->setVariable('CREATE_ACTION', $this->getCommandLink(TaxonomyModule::COMMAND_CREATE_TAXONOMY));
 

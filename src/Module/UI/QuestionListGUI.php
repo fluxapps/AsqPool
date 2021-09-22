@@ -111,13 +111,18 @@ class QuestionListGUI extends AbstractAsqModule
         $buttons = [];
 
         $link = $this->asq_service->link()->getCreationLink();
-        $link_button = $this->getKSFactory()->button()->standard(
+
+        $buttons[] = $this->getKSFactory()->button()->standard(
             $link->getLabel(),
             $link->getAction()
-        );
-        $buttons[] = $link_button;
+        );;
 
-        $buttons[] = $this->taxonomies->getTaxonomyButton();
+        if (!$this->taxonomies->hasTaxonomy()) {
+            $buttons[] = $this->getKSFactory()->button()->standard(
+                'TODO CreateTaxonomy',
+                $this->getCommandLink(TaxonomyModule::COMMAND_SHOW_CREATION_GUI)
+            );
+        }
 
         return $buttons;
     }
