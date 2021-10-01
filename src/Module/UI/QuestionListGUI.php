@@ -45,6 +45,7 @@ class QuestionListGUI extends AbstractAsqModule
     const COL_AUTHOR = 'QUESTION_AUTHOR';
     const COL_VERSIONS = 'QUESTION_VERSIONS';
     const COL_STATUS = 'QUESTION_STATUS';
+    const COL_TAXONOMY = 'QUESTION_TAXONOMY';
     const COL_EDIT_LINK = "QUESTION_EDIT_LINK";
 
 
@@ -95,15 +96,17 @@ class QuestionListGUI extends AbstractAsqModule
             self::COL_AUTHOR => 'TODO header_creator',
             self::COL_VERSIONS => 'TODO header_versions',
             self::COL_STATUS => 'TODO header_status',
+            self::COL_TAXONOMY => 'TODO header_taxonomy',
             self::COL_EDIT_LINK => ''
         ],
         $this->getQuestionsAsAssocArray(),
         [
-            'TODO Delete Questions' => $this->getCommandLink(self::CMD_DELETE_QUESTION)
+            'TODO Delete Questions' => $this->getCommandLink(self::CMD_DELETE_QUESTION),
+            'TODO Save Taxonomies' => $this->getCommandLink(TaxonomyModule::COMMAND_SAVE_TAXONOMY_MAPPINGS)
         ]);
 
 
-        return $question_table->render();
+        return '<form>' . $question_table->render() . '</form>';
     }
 
     public function getToolbarButtons() : array
@@ -149,6 +152,7 @@ class QuestionListGUI extends AbstractAsqModule
             $question_array[self::COL_VERSIONS] = $this->getVersionsInfo($item);
             $question_array[self::COL_STATUS] = $this->getStatus($question_dto);
             $question_array[self::COL_ID] = $question_dto->getId();
+            $question_array[self::COL_TAXONOMY] = $this->taxonomies->renderTaxonomySelection($question_dto->getId());
 
             $assoc_array[] = $question_array;
         }

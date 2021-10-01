@@ -22,34 +22,22 @@ class TaxonomyEditGUI
     use PathHelper;
     use CtrlTrait;
 
-    private ilObjTaxonomy $taxonomy;
+    private array $nodes;
 
-    private ilTaxonomyTree $tree;
-
-    public function __construct(ilObjTaxonomy $taxonomy)
+    public function __construct(array $nodes)
     {
-        $this->taxonomy = $taxonomy;
-        $this->tree = $taxonomy->getTree();
+        $this->nodes = $nodes;
     }
 
     public function render() : string
     {
         $tpl = new ilTemplate($this->getBasePath(__DIR__) . 'src/Module/Taxonomy/taxonomyEdit.html', true, true);
 
-        $root = $this->tree->getNodeData($this->tree->readRootId());
-        $this->renderNode($root['obj_id'], $root['title'], intval($root['depth']), $tpl);
-
-        $this->processNode($this->tree->readRootId(), $tpl);
+        foreach ($this->nodes as $node) {
+            $this->renderNode($node['obj_id'], $node['title'], intval($node['depth']), $tpl);
+        }
 
         return $tpl->get();
-    }
-
-    private function processNode(string $node_id, ilTemplate $tpl) : void
-    {
-        foreach ($this->tree->getChilds($node_id) as $node) {
-            $this->renderNode($node['obj_id'], $node['title'], intval($node['depth']), $tpl);
-            $this->processNode($node['obj_id'], $tpl);
-        }
     }
 
     private function renderNode(string $id, string $title, int $depth, ilTemplate $tpl) : void
