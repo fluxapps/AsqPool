@@ -29,7 +29,7 @@ class QuestionPoolPlugin extends AbstractAsqPlugin
 
         $this->addModule(new ASQModule($this->event_queue, $this->access));
 
-        $this->addModule(new TaxonomyModule($this->event_queue, $this->access, $reference));
+        $this->addModule(new TaxonomyModule($this->event_queue, $this->access));
 
         $this->addModule(new QuestionListGUI(
             $this->event_queue,

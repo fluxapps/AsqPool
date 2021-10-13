@@ -5,13 +5,13 @@ namespace srag\asq\QuestionPool\Module\Taxonomy;
 
 use Fluxlabs\Assessment\Tools\DIC\CtrlTrait;
 use Fluxlabs\Assessment\Tools\DIC\KitchenSinkTrait;
-use Fluxlabs\Assessment\Tools\Domain\ILIASReference;
 use Fluxlabs\Assessment\Tools\Domain\IObjectAccess;
 use Fluxlabs\Assessment\Tools\Domain\Modules\AbstractAsqModule;
 use Fluxlabs\Assessment\Tools\Event\IEventQueue;
 use Fluxlabs\Assessment\Tools\Event\Standard\AddTabEvent;
 use Fluxlabs\Assessment\Tools\Event\Standard\ForwardToCommandEvent;
 use Fluxlabs\Assessment\Tools\Event\Standard\SetUIEvent;
+use Fluxlabs\Assessment\Tools\Service\Taxonomy\Taxonomy;
 use Fluxlabs\Assessment\Tools\UI\System\TabDefinition;
 use Fluxlabs\Assessment\Tools\UI\System\UIData;
 use ILIAS\Data\UUID\Uuid;
@@ -52,18 +52,12 @@ class TaxonomyModule extends AbstractAsqModule
 
     private ?TaxonomyData $data;
 
-    private ILIASReference $reference;
+    private Taxonomy $taxonomy;
 
-    private ilObjTaxonomy $taxonomy;
-    private ilTaxonomyTree $tree;
-
-    private ?array $node_mapping = null;
-
-    public function __construct(IEventQueue $event_queue, IObjectAccess $access, ILIASReference $reference)
+    public function __construct(IEventQueue $event_queue, IObjectAccess $access)
     {
         parent::__construct($event_queue, $access);
 
-        $this->reference = $reference;
         $this->data = $this->access->getStorage()->getConfiguration(self::TAXONOMY_KEY);
 
         if ($this->hasTaxonomy()) {
@@ -71,13 +65,9 @@ class TaxonomyModule extends AbstractAsqModule
                 $this,
                 new TabDefinition(self::class, 'Taxonomies', self::COMMAND_SHOW_EDIT_TAXONOMY_GUI)
             ));
-        }
-    }
 
-    private function loadTaxonomy() : void
-    {
-        $this->taxonomy = new ilObjTaxonomy($this->data->getTaxonomyId());
-        $this->tree = $this->taxonomy->getTree();
+            $this->taxonomy = new Taxonomy($this->data->getTaxonomyId());
+        }
     }
 
     public function hasTaxonomy() : bool
@@ -100,10 +90,7 @@ class TaxonomyModule extends AbstractAsqModule
         $title = $this->getPostValue(TaxonomyModule::TITLE_KEY);
         $description = $this->getPostValue(TaxonomyModule::DESCRIPTION_KEY);
 
-        $taxonomy = new ilObjTaxonomy();
-        $taxonomy->setTitle($title);
-        $taxonomy->setDescription($description);
-        $id = intval($taxonomy->create());
+        $id = $this->taxonomy->createNew($title, $description);
 
         $data = new TaxonomyData($id);
         $this->access->getStorage()->setConfiguration(self::TAXONOMY_KEY, $data);
@@ -116,9 +103,7 @@ class TaxonomyModule extends AbstractAsqModule
 
     public function showEdit() : void
     {
-        $this->loadTaxonomy();
-
-        $gui = new TaxonomyEditGUI($this->getNodeMapping());
+        $gui = new TaxonomyEditGUI($this->taxonomy->getNodeMapping());
 
         $this->raiseEvent(new SetUIEvent($this, new UIData(
             'TODO Edit Taxonomy',
@@ -128,16 +113,10 @@ class TaxonomyModule extends AbstractAsqModule
 
     public function addNode() : void
     {
-        $this->loadTaxonomy();
-
         $id = intval($this->getLinkParameter(self::NODE_KEY));
         $title = $this->getPostValue(TaxonomyModule::TITLE_KEY . $id);
 
-        $node = new ilTaxonomyNode();
-        $node->setTitle($title);
-        $node->setTaxonomyId($this->data->getTaxonomyId());
-        $node->create();
-        $this->taxonomy->getTree()->insertNode($node->getId(), $id);
+        $this->taxonomy->createNewNode($id, $title);
 
         $this->raiseEvent(new ForwardToCommandEvent($this, self::COMMAND_SHOW_EDIT_TAXONOMY_GUI));
     }
@@ -147,33 +126,23 @@ class TaxonomyModule extends AbstractAsqModule
         $id = intval($this->getLinkParameter(self::NODE_KEY));
         $title = $this->getPostValue(TaxonomyModule::TITLE_KEY . $id);
 
-        $node = new ilTaxonomyNode($id);
-        $node->setTitle($title);
-        $node->update();
+        $this->taxonomy->updateNode($id, $title);
 
         $this->raiseEvent(new ForwardToCommandEvent($this, self::COMMAND_SHOW_EDIT_TAXONOMY_GUI));
     }
 
     public function deleteNode() : void
     {
-        $this->loadTaxonomy();
-
         $id = intval($this->getLinkParameter(self::NODE_KEY));
 
-        $node = new ilTaxonomyNode($id);
-
-        $this->taxonomy->getTree()->deleteNode($this->taxonomy->getTree()->getTreeId(), $node->getId());
-
-        $node->delete();
+        $this->taxonomy->deleteNode($id);
 
         $this->raiseEvent(new ForwardToCommandEvent($this, self::COMMAND_SHOW_EDIT_TAXONOMY_GUI));
     }
 
     public function renderTaxonomySelection(Uuid $id) : string
     {
-        $this->loadTaxonomy();
-
-        $mapping = $this->getNodeMapping();
+        $mapping = $this->taxonomy->getNodeMapping();
 
         $node_selects = implode('', array_map(function($node) use($id) {
             return sprintf(
@@ -211,25 +180,6 @@ class TaxonomyModule extends AbstractAsqModule
     private function getTaxonomyPostName(Uuid $id) : string
     {
         return self::TAX_POST_KEY . $id;
-    }
-
-    private function getNodeMapping() : array
-    {
-        if ($this->node_mapping === null) {
-            $root_id = $this->tree->readRootId();
-            $this->node_mapping[] = $this->tree->getNodeData($root_id);
-            $this->processNode($root_id);
-        }
-
-        return $this->node_mapping;
-    }
-
-    private function processNode(string $node_id) : void
-    {
-        foreach ($this->tree->getChilds($node_id) as $node) {
-            $this->node_mapping[] = $node;
-            $this->processNode($node['obj_id']);
-        }
     }
 
     public function getCommands(): array

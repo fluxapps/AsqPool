@@ -14,9 +14,9 @@ use Fluxlabs\CQRS\Aggregate\AbstractValueObject;
  */
 class TaxonomyData extends AbstractValueObject
 {
-    public ?int $taxonomy_id;
+    protected ?int $taxonomy_id;
 
-    public ?array $question_mapping;
+    protected ?array $question_mapping;
 
     public function __construct(?int $taxonomy_id = null,
                                 ?array $question_mapping = null)
