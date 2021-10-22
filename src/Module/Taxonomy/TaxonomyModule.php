@@ -5,6 +5,7 @@ namespace srag\asq\QuestionPool\Module\Taxonomy;
 
 use Fluxlabs\Assessment\Tools\DIC\CtrlTrait;
 use Fluxlabs\Assessment\Tools\DIC\KitchenSinkTrait;
+use Fluxlabs\Assessment\Tools\DIC\LanguageTrait;
 use Fluxlabs\Assessment\Tools\Domain\IObjectAccess;
 use Fluxlabs\Assessment\Tools\Domain\Modules\AbstractAsqModule;
 use Fluxlabs\Assessment\Tools\Event\IEventQueue;
@@ -33,6 +34,7 @@ class TaxonomyModule extends AbstractAsqModule
     use CtrlTrait;
     use KitchenSinkTrait;
     use PostAccess;
+    use LanguageTrait;
 
     const TAXONOMY_KEY = 'taxonomy_data';
     const NODE_KEY = 'currentNode';
@@ -80,7 +82,7 @@ class TaxonomyModule extends AbstractAsqModule
         $gui = new TaxonomyCreateGUI();
 
         $this->raiseEvent(new SetUIEvent($this, new UIData(
-            'TODO Create Taxonomy',
+            $this->txt('asqp_create_taxonomy'),
             $gui->render()
         )));
     }
@@ -95,10 +97,7 @@ class TaxonomyModule extends AbstractAsqModule
         $data = new TaxonomyData($id);
         $this->access->getStorage()->setConfiguration(self::TAXONOMY_KEY, $data);
 
-        $this->raiseEvent(new SetUIEvent($this, new UIData(
-            'TODO Create Taxonomy',
-            'created'
-        )));
+        $this->raiseEvent(new ForwardToCommandEvent($this, QuestionListGUI::CMD_SHOW_QUESTIONS));
     }
 
     public function showEdit() : void
@@ -106,7 +105,7 @@ class TaxonomyModule extends AbstractAsqModule
         $gui = new TaxonomyEditGUI($this->taxonomy->getNodeMapping());
 
         $this->raiseEvent(new SetUIEvent($this, new UIData(
-            'TODO Edit Taxonomy',
+            $this->txt('asqp_edit_taxonomy'),
             $gui->render()
         )));
     }
@@ -142,6 +141,10 @@ class TaxonomyModule extends AbstractAsqModule
 
     public function renderTaxonomySelection(Uuid $id) : string
     {
+        if (!$this->hasTaxonomy()) {
+            return '';
+        }
+
         $mapping = $this->taxonomy->getNodeMapping();
 
         $node_selects = implode('', array_map(function($node) use($id) {

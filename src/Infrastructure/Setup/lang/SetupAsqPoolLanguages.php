@@ -14,8 +14,10 @@ use srag\asq\Infrastructure\Setup\lang\SetupLanguages;
  */
 class SetupAsqPoolLanguages extends SetupLanguages
 {
+    const ASQ_POOL_LANGUAGE_PREFIX = 'asqp';
+
     public function getLanguagePrefix() : string
     {
-        return "asqp";
+        return self::ASQ_POOL_LANGUAGE_PREFIX;
     }
 }

@@ -6,6 +6,7 @@ namespace srag\asq\QuestionPool\Module\QuestionService;
 use AsqQuestionAuthoringGUI;
 use Fluxlabs\Assessment\Tools\DIC\CtrlTrait;
 use Fluxlabs\Assessment\Tools\DIC\KitchenSinkTrait;
+use Fluxlabs\Assessment\Tools\DIC\LanguageTrait;
 use Fluxlabs\Assessment\Tools\Domain\IObjectAccess;
 use Fluxlabs\Assessment\Tools\Domain\Modules\AbstractAsqModule;
 use Fluxlabs\Assessment\Tools\Event\IEventQueue;
@@ -27,6 +28,7 @@ class ASQModule extends AbstractAsqModule implements IAuthoringCaller
 {
     use CtrlTrait;
     use KitchenSinkTrait;
+    use LanguageTrait;
 
     private AsqServices $asq_services;
 
@@ -42,7 +44,7 @@ class ASQModule extends AbstractAsqModule implements IAuthoringCaller
     public function executeTransfer(string $transfer) : void
     {
         $backLink = $this->getKSFactory()->link()->standard(
-            'TODO back',
+            $this->txt('asqp_back'),
             $this->getCommandLink(QuestionListGUI::CMD_SHOW_QUESTIONS)
         );
 

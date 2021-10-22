@@ -3,9 +3,11 @@ declare(strict_types = 1);
 
 namespace srag\asq\QuestionPool\Application;
 
+use Fluxlabs\Assessment\Tools\DIC\LanguageTrait;
 use Fluxlabs\Assessment\Tools\Domain\AbstractAsqPlugin;
 use Fluxlabs\Assessment\Tools\Domain\ILIASReference;
 use ILIAS\Data\UUID\Uuid;
+use srag\asq\QuestionPool\Infrastructure\Setup\lang\SetupAsqPoolLanguages;
 use srag\asq\QuestionPool\Module\QuestionService\ASQModule;
 use srag\asq\QuestionPool\Module\Storage\QuestionPoolStorage;
 use srag\asq\QuestionPool\Module\Taxonomy\TaxonomyModule;
@@ -20,9 +22,14 @@ use srag\asq\QuestionPool\Module\UI\QuestionListGUI;
  */
 class QuestionPoolPlugin extends AbstractAsqPlugin
 {
+    use LanguageTrait;
+
     private function __construct(ILIASReference $reference)
     {
         parent::__construct($reference);
+
+        $this->loadLanguageModule('asq');
+        $this->loadLanguageModule(SetupAsqPoolLanguages::ASQ_POOL_LANGUAGE_PREFIX);
 
         $storage = new QuestionPoolStorage($this->event_queue, $this->access, $reference->getId());
         $this->addModule($storage);

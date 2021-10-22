@@ -5,6 +5,7 @@ namespace srag\asq\QuestionPool\Module\UI;
 
 use Fluxlabs\Assessment\Tools\DIC\CtrlTrait;
 use Fluxlabs\Assessment\Tools\DIC\KitchenSinkTrait;
+use Fluxlabs\Assessment\Tools\DIC\LanguageTrait;
 use Fluxlabs\Assessment\Tools\Domain\IObjectAccess;
 use Fluxlabs\Assessment\Tools\Domain\Modules\AbstractAsqModule;
 use Fluxlabs\Assessment\Tools\Event\IEventQueue;
@@ -35,6 +36,7 @@ class QuestionListGUI extends AbstractAsqModule
     use PathHelper;
     use CtrlTrait;
     use KitchenSinkTrait;
+    use LanguageTrait;
 
     const CMD_DELETE_QUESTION = 'deleteQuestion';
     const CMD_SHOW_QUESTIONS = "showQuestions";
@@ -80,7 +82,7 @@ class QuestionListGUI extends AbstractAsqModule
     public function showQuestions() : void
     {
         $this->raiseEvent(new SetUIEvent($this, new UIData(
-            'Questions',
+            $this->txt('asqp_questions'),
             $this->renderContent(),
             null,
             $this->getToolbarButtons()
@@ -91,18 +93,18 @@ class QuestionListGUI extends AbstractAsqModule
     {
         $question_table = new AsqTable([
             self::COL_ID => '',
-            self::COL_TITLE => 'TODO header_title',
-            self::COL_TYPE => 'TODO header_type',
-            self::COL_AUTHOR => 'TODO header_creator',
-            self::COL_VERSIONS => 'TODO header_versions',
-            self::COL_STATUS => 'TODO header_status',
-            self::COL_TAXONOMY => 'TODO header_taxonomy',
+            self::COL_TITLE => $this->txt('asqp_title'),
+            self::COL_TYPE => $this->txt('asqp_type'),
+            self::COL_AUTHOR => $this->txt('asqp_creator'),
+            self::COL_VERSIONS => $this->txt('asqp_versions'),
+            self::COL_STATUS => $this->txt('asqp_status'),
+            self::COL_TAXONOMY => $this->txt('asqp_taxonomy'),
             self::COL_EDIT_LINK => ''
         ],
         $this->getQuestionsAsAssocArray(),
         [
-            'TODO Delete Questions' => $this->getCommandLink(self::CMD_DELETE_QUESTION),
-            'TODO Save Taxonomies' => $this->getCommandLink(TaxonomyModule::COMMAND_SAVE_TAXONOMY_MAPPINGS)
+            $this->txt('asqp_delete_question') => $this->getCommandLink(self::CMD_DELETE_QUESTION),
+            $this->txt('asqp_save_taxonomies') => $this->getCommandLink(TaxonomyModule::COMMAND_SAVE_TAXONOMY_MAPPINGS)
         ]);
 
 
@@ -122,7 +124,7 @@ class QuestionListGUI extends AbstractAsqModule
 
         if (!$this->taxonomies->hasTaxonomy()) {
             $buttons[] = $this->getKSFactory()->button()->standard(
-                'TODO CreateTaxonomy',
+                $this->txt('asqp_create_taxonomy'),
                 $this->getCommandLink(TaxonomyModule::COMMAND_SHOW_CREATION_GUI)
             );
         }
@@ -146,7 +148,7 @@ class QuestionListGUI extends AbstractAsqModule
             $data = $question_dto->getData();
 
             $question_array[self::COL_TITLE] = is_null($data) ? self::VAL_NO_TITLE : (empty($data->getTitle()) ? self::VAL_NO_TITLE : $data->getTitle());
-            $question_array[self::COL_TYPE] = 'TODO TRANS ' . $question_dto->getType()->getTitleKey();
+            $question_array[self::COL_TYPE] = $this->txt($question_dto->getType()->getTitleKey());
             $question_array[self::COL_AUTHOR] = is_null($data) ? '' : $data->getAuthor();
             $question_array[self::COL_EDIT_LINK] = $this->getRowActions($question_dto);
             $question_array[self::COL_VERSIONS] = $this->getVersionsInfo($item);
@@ -206,7 +208,7 @@ class QuestionListGUI extends AbstractAsqModule
 
         foreach ($_POST['action'] as $question_id) {
             $this->pool_service->removeQuestion($this->pool_id, $this->uuid_factory->fromString($question_id));
-            ilUtil::sendInfo('TODO question_removed');
+            ilUtil::sendInfo($this->txt('asqp_question_removed'));
         }
     }
 

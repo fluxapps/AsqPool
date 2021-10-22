@@ -4,6 +4,7 @@ declare(strict_types = 1);
 namespace srag\asq\QuestionPool\Module\Taxonomy;
 
 use Fluxlabs\Assessment\Tools\DIC\CtrlTrait;
+use Fluxlabs\Assessment\Tools\DIC\LanguageTrait;
 use ilObjTaxonomy;
 use ilTaxonomyNode;
 use ilTaxonomyTree;
@@ -21,6 +22,7 @@ class TaxonomyEditGUI
 {
     use PathHelper;
     use CtrlTrait;
+    use LanguageTrait;
 
     private array $nodes;
 
@@ -47,7 +49,7 @@ class TaxonomyEditGUI
         if ($depth > 1) {
             $tpl->setCurrentBlock('delete');
             $tpl->setVariable('DELETE_ACTION', $this->getCommandLink(TaxonomyModule::COMMAND_DELETE_TAXONOMY_NODE));
-            $tpl->setVariable('DELETE', 'TODO Delete');
+            $tpl->setVariable('DELETE', $this->txt('asqp_delete'));
             $tpl->parseCurrentBlock();
         }
 
@@ -56,9 +58,9 @@ class TaxonomyEditGUI
         $tpl->setVariable('TITLE', $title);
         $tpl->setVariable('ADD_CHILD_TITLE', TaxonomyModule::TITLE_KEY . $id);
         $tpl->setVariable('ADD_ACTION', $this->getCommandLink(TaxonomyModule::COMMAND_ADD_TAXONOMY_NODE));
-        $tpl->setVariable('ADD', 'TODO Add');
+        $tpl->setVariable('ADD', $this->txt('asqp_add'));
         $tpl->setVariable('EDIT_ACTION', $this->getCommandLink(TaxonomyModule::COMMAND_EDIT_TAXONOMY_NODE));
-        $tpl->setVariable('EDIT', 'TODO Edit');
+        $tpl->setVariable('EDIT', $this->txt('asqp_edit'));
         $tpl->parseCurrentBlock();
     }
 }
