@@ -92,6 +92,7 @@ class TaxonomyModule extends AbstractAsqModule
         $title = $this->getPostValue(TaxonomyModule::TITLE_KEY);
         $description = $this->getPostValue(TaxonomyModule::DESCRIPTION_KEY);
 
+        $this->taxonomy = new Taxonomy();
         $id = $this->taxonomy->createNew($title, $description);
 
         $data = new TaxonomyData($id);
