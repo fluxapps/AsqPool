@@ -28,7 +28,6 @@ class CreatePoolCommandHandler implements CommandHandlerContract
     {
         $pool = QuestionPool::create(
             $command->getId(),
-            $command->getIssuingUserId(),
             $command->getData()
         );
 

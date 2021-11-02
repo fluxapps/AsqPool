@@ -3,7 +3,6 @@ declare(strict_types = 1);
 
 namespace srag\asq\QuestionPool\Application\Command;
 
-use ILIAS\Data\UUID\Uuid;
 use srag\asq\QuestionPool\Domain\Model\QuestionPool;
 use Fluxlabs\CQRS\Command\AbstractCommand;
 
@@ -18,10 +17,10 @@ class StorePoolCommand extends AbstractCommand
 {
     public QuestionPool $pool;
 
-    public function __construct(QuestionPool $pool, int $user_id)
+    public function __construct(QuestionPool $pool)
     {
         $this->pool = $pool;
-        parent::__construct($user_id);
+        parent::__construct();
     }
 
     public function getPool() : QuestionPool

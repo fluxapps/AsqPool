@@ -20,17 +20,11 @@ class CreatePoolCommand extends AbstractCommand
 
     protected QuestionPoolData $data;
 
-    /**
-     * CreatePoolCommand constructor.
-     * @param Uuid $uuid
-     * @param int $user_id
-     * @param QuestionPoolData $data
-     */
-    public function __construct(Uuid $uuid, int $user_id, QuestionPoolData $data)
+    public function __construct(Uuid $uuid, QuestionPoolData $data)
     {
         $this->uuid = $uuid;
         $this->data = $data;
-        parent::__construct($user_id);
+        parent::__construct();
     }
 
     public function getId() : Uuid

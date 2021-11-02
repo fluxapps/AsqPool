@@ -15,39 +15,22 @@ use Fluxlabs\CQRS\Command\AbstractCommand;
  */
 class AddQuestionCommand extends AbstractCommand
 {
-    /**
-     * @var Uuid
-     */
-    public $question_pool_id;
+    public Uuid $question_pool_id;
 
-    /**
-     * @var Uuid
-     */
-    public $question_id;
+    public Uuid $question_id;
 
-    /**
-     * @param Uuid $section_id
-     * @param int $user_id
-     * @param Uuid $question_id
-     */
-    public function __construct(Uuid $question_pool_id, int $user_id, Uuid $question_id)
+    public function __construct(Uuid $question_pool_id, Uuid $question_id)
     {
         $this->question_pool_id = $question_pool_id;
         $this->question_id = $question_id;
-        parent::__construct($user_id);
+        parent::__construct();
     }
 
-    /**
-     * @return Uuid
-     */
     public function getQuestionPoolId() : Uuid
     {
         return $this->question_pool_id;
     }
 
-    /**
-     * @return Uuid
-     */
     public function getQuestionId() : Uuid
     {
         return $this->question_id;

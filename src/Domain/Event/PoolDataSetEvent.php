@@ -25,11 +25,10 @@ class PoolDataSetEvent extends AbstractDomainEvent
     public function __construct(
         Uuid $aggregate_id,
         ilDateTime $occured_on,
-        int $initiating_user_id,
         QuestionPoolData $data
     ) {
         $this->data = $data;
-        parent::__construct($aggregate_id, $occured_on, $initiating_user_id);
+        parent::__construct($aggregate_id, $occured_on);
     }
 
     public function getData() : QuestionPoolData

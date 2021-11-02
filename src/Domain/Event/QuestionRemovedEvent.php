@@ -22,11 +22,10 @@ class QuestionRemovedEvent extends AbstractDomainEvent
     public function __construct(
         Uuid $aggregate_id,
         ilDateTime $occured_on,
-        int $initiating_user_id,
         ?Uuid $question_id = null
         ) {
             $this->question_id = $question_id;
-            parent::__construct($aggregate_id, $occured_on, $initiating_user_id);
+            parent::__construct($aggregate_id, $occured_on);
     }
 
     public function getQuestionId() : Uuid

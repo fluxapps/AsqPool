@@ -36,7 +36,6 @@ class QuestionPool extends PluginAggregateRoot
 
     public static function create(
         Uuid $uuid,
-        int $initiating_user_id,
         QuestionPoolData $data
     ) : QuestionPool {
         $pool = new QuestionPool();
@@ -44,7 +43,6 @@ class QuestionPool extends PluginAggregateRoot
             new AggregateCreatedEvent(
                 $uuid,
                 new ilDateTime(time(), IL_CAL_UNIX),
-                $initiating_user_id,
                 [
                     self::DATA => $data
                 ]
@@ -66,13 +64,12 @@ class QuestionPool extends PluginAggregateRoot
         return $this->data;
     }
 
-    public function setData(QuestionPoolData $data, int $user_id) : void
+    public function setData(QuestionPoolData $data) : void
     {
         $this->ExecuteEvent(
             new PoolDataSetEvent(
                 $this->aggregate_id,
                 new ilDateTime(time(), IL_CAL_UNIX),
-                $user_id,
                 $data)
         );
     }
@@ -82,14 +79,13 @@ class QuestionPool extends PluginAggregateRoot
         $this->data = $event->getData();
     }
 
-    public function addQuestion(Uuid $question_id, int $user_id) : void
+    public function addQuestion(Uuid $question_id) : void
     {
         if (!in_array($question_id, $this->questions)) {
             $this->ExecuteEvent(
                 new QuestionAddedEvent(
                     $this->aggregate_id,
                     new ilDateTime(time(), IL_CAL_UNIX),
-                    $user_id,
                     $question_id)
                 );
         }
@@ -103,14 +99,13 @@ class QuestionPool extends PluginAggregateRoot
         $this->questions[] = $event->getQuestionId();
     }
 
-    public function removeQuestion(Uuid $question_id, int $user_id) : void
+    public function removeQuestion(Uuid $question_id) : void
     {
         if (in_array($question_id, $this->questions)) {
             $this->ExecuteEvent(
                 new QuestionRemovedEvent(
                     $this->aggregate_id,
                     new ilDateTime(time(), IL_CAL_UNIX),
-                    $user_id,
                     $question_id)
                 );
         }

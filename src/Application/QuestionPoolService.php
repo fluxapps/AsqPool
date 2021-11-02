@@ -32,7 +32,7 @@ use srag\asq\QuestionPool\Application\Command\CreatePoolCommandHandler;
  * @author studer + raimann ag - Team Core 2 <al@studer-raimann.ch>
  */
 
-class QuestionPoolService extends ASQService
+class QuestionPoolService
 {
     private CommandBus $command_bus;
 
@@ -85,7 +85,6 @@ class QuestionPoolService extends ASQService
         $this->command_bus->handle(
             new CreatePoolCommand(
                 $uuid,
-                $this->getActiveUser(),
                 $data
             )
         );
@@ -102,7 +101,6 @@ class QuestionPoolService extends ASQService
         $this->command_bus->handle(
             new AddQuestionCommand(
                 $pool_id,
-                $this->getActiveUser(),
                 $question_id
             )
         );
@@ -117,7 +115,6 @@ class QuestionPoolService extends ASQService
         $this->command_bus->handle(
             new RemoveQuestionCommand(
                 $pool_id,
-                $this->getActiveUser(),
                 $question_id
             )
         );
@@ -133,7 +130,6 @@ class QuestionPoolService extends ASQService
         $this->command_bus->handle(
             new StorePoolCommand(
                 $pool,
-                $this->getActiveUser()
             )
         );
     }
@@ -151,12 +147,11 @@ class QuestionPoolService extends ASQService
         /** @var $pool QuestionPool */
         $pool = $this->repo->getAggregateRootById($pool_id);
 
-        $pool->setConfiguration($config, $config_for, $this->getActiveUser());
+        $pool->setConfiguration($config, $config_for);
 
         $this->command_bus->handle(
             new StorePoolCommand(
                 $pool,
-                $this->getActiveUser()
             )
         );
     }
@@ -182,12 +177,11 @@ class QuestionPoolService extends ASQService
         /** @var $pool QuestionPool */
         $pool = $this->repo->getAggregateRootById($pool_id);
 
-        $pool->removeConfiguration($config_for, $this->getActiveUser());
+        $pool->removeConfiguration($config_for);
 
         $this->command_bus->handle(
             new StorePoolCommand(
                 $pool,
-                $this->getActiveUser()
             )
         );
     }
