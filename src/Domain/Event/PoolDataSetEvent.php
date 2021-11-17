@@ -4,9 +4,8 @@ declare(strict_types = 1);
 namespace srag\asq\QuestionPool\Domain\Event;
 
 use ILIAS\Data\UUID\Uuid;
-use ilDateTime;
+use DateTimeImmutable;
 use srag\asq\QuestionPool\Domain\Model\QuestionPoolData;
-use Fluxlabs\CQRS\Aggregate\AbstractValueObject;
 use Fluxlabs\CQRS\Event\AbstractDomainEvent;
 
 /**
@@ -24,7 +23,7 @@ class PoolDataSetEvent extends AbstractDomainEvent
 
     public function __construct(
         Uuid $aggregate_id,
-        ilDateTime $occured_on,
+        DateTimeImmutable $occured_on,
         QuestionPoolData $data
     ) {
         $this->data = $data;

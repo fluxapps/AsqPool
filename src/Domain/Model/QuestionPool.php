@@ -6,12 +6,10 @@ namespace srag\asq\QuestionPool\Domain\Model;
 use Fluxlabs\Assessment\Tools\Domain\Model\PluginAggregateRoot;
 use srag\asq\QuestionPool\Domain\Event\PoolConfigurationSetEvent;
 use srag\asq\QuestionPool\Domain\Event\PoolDataSetEvent;
-use Fluxlabs\CQRS\Aggregate\AbstractAggregateRoot;
-use Fluxlabs\CQRS\Aggregate\AbstractValueObject;
 use Fluxlabs\CQRS\Event\DomainEvent;
 use Fluxlabs\CQRS\Event\Standard\AggregateCreatedEvent;
 use ILIAS\Data\UUID\Uuid;
-use ilDateTime;
+use DateTimeImmutable;
 use srag\asq\Application\Exception\AsqException;
 use srag\asq\QuestionPool\Domain\Event\QuestionAddedEvent;
 use srag\asq\QuestionPool\Domain\Event\QuestionRemovedEvent;
@@ -42,7 +40,7 @@ class QuestionPool extends PluginAggregateRoot
         $pool->ExecuteEvent(
             new AggregateCreatedEvent(
                 $uuid,
-                new ilDateTime(time(), IL_CAL_UNIX),
+                new DateTimeImmutable(),
                 [
                     self::DATA => $data
                 ]
@@ -69,7 +67,7 @@ class QuestionPool extends PluginAggregateRoot
         $this->ExecuteEvent(
             new PoolDataSetEvent(
                 $this->aggregate_id,
-                new ilDateTime(time(), IL_CAL_UNIX),
+                new DateTimeImmutable(),
                 $data)
         );
     }
@@ -85,7 +83,7 @@ class QuestionPool extends PluginAggregateRoot
             $this->ExecuteEvent(
                 new QuestionAddedEvent(
                     $this->aggregate_id,
-                    new ilDateTime(time(), IL_CAL_UNIX),
+                    new DateTimeImmutable(),
                     $question_id)
                 );
         }
@@ -105,7 +103,7 @@ class QuestionPool extends PluginAggregateRoot
             $this->ExecuteEvent(
                 new QuestionRemovedEvent(
                     $this->aggregate_id,
-                    new ilDateTime(time(), IL_CAL_UNIX),
+                    new DateTimeImmutable(),
                     $question_id)
                 );
         }

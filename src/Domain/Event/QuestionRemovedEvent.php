@@ -4,7 +4,7 @@ declare(strict_types = 1);
 namespace srag\asq\QuestionPool\Domain\Event;
 
 use ILIAS\Data\UUID\Uuid;
-use ilDateTime;
+use DateTimeImmutable;
 use Fluxlabs\CQRS\Event\AbstractDomainEvent;
 use ILIAS\Data\UUID\Factory;
 
@@ -21,7 +21,7 @@ class QuestionRemovedEvent extends AbstractDomainEvent
 
     public function __construct(
         Uuid $aggregate_id,
-        ilDateTime $occured_on,
+        DateTimeImmutable $occured_on,
         ?Uuid $question_id = null
         ) {
             $this->question_id = $question_id;
