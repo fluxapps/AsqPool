@@ -9,6 +9,8 @@ use Fluxlabs\Assessment\Tools\DIC\KitchenSinkTrait;
 use Fluxlabs\Assessment\Tools\DIC\LanguageTrait;
 use Fluxlabs\Assessment\Tools\Domain\IObjectAccess;
 use Fluxlabs\Assessment\Tools\Domain\Modules\AbstractAsqModule;
+use Fluxlabs\Assessment\Tools\Domain\Modules\Definition\ModuleDefinition;
+use Fluxlabs\Assessment\Tools\Domain\Modules\IModuleDefinition;
 use Fluxlabs\Assessment\Tools\Event\IEventQueue;
 use srag\asq\Application\Service\AsqServices;
 use srag\asq\Application\Service\AuthoringContextContainer;
@@ -32,12 +34,9 @@ class ASQModule extends AbstractAsqModule implements IAuthoringCaller
 
     private AsqServices $asq_services;
 
-    public function __construct(IEventQueue $event_queue, IObjectAccess $access)
+    protected function initialize() : void
     {
-        parent::__construct($event_queue, $access);
-
         global $ASQDIC;
-
         $this->asq_services = $ASQDIC->asq();
     }
 
@@ -70,15 +69,19 @@ class ASQModule extends AbstractAsqModule implements IAuthoringCaller
         $DIC->ctrl()->forwardCommand($asq);
     }
 
-    public function getExternals(): array
-    {
-        return [
-            strtolower(AsqQuestionAuthoringGUI::class)
-        ];
-    }
-
     public function afterQuestionCreated(QuestionDto $question): void
     {
         $this->raiseEvent(new QuestionAddedEvent($this, $question->getId()));
+    }
+
+    public function getModuleDefinition(): IModuleDefinition
+    {
+        return new ModuleDefinition(
+            ModuleDefinition::NO_CONFIG,
+            [],
+            [],
+            [],
+            [AsqQuestionAuthoringGUI::class]
+        );
     }
 }

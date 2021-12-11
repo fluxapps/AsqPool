@@ -6,13 +6,13 @@ namespace srag\asq\QuestionPool\Module\UI;
 use Fluxlabs\Assessment\Tools\DIC\CtrlTrait;
 use Fluxlabs\Assessment\Tools\DIC\KitchenSinkTrait;
 use Fluxlabs\Assessment\Tools\DIC\LanguageTrait;
-use Fluxlabs\Assessment\Tools\Domain\IObjectAccess;
 use Fluxlabs\Assessment\Tools\Domain\Modules\AbstractAsqModule;
-use Fluxlabs\Assessment\Tools\Event\IEventQueue;
-use Fluxlabs\Assessment\Tools\Event\Standard\AddTabEvent;
+use Fluxlabs\Assessment\Tools\Domain\Modules\Definition\CommandDefinition;
+use Fluxlabs\Assessment\Tools\Domain\Modules\Definition\ModuleDefinition;
+use Fluxlabs\Assessment\Tools\Domain\Modules\Definition\TabDefinition;
+use Fluxlabs\Assessment\Tools\Domain\Modules\IModuleDefinition;
 use Fluxlabs\Assessment\Tools\Event\Standard\SetUIEvent;
 use Fluxlabs\Assessment\Tools\UI\Components\AsqTable;
-use Fluxlabs\Assessment\Tools\UI\System\TabDefinition;
 use Fluxlabs\Assessment\Tools\UI\System\UIData;
 use ILIAS\Data\UUID\Factory;
 use ILIAS\Data\UUID\Uuid;
@@ -20,7 +20,6 @@ use ilUtil;
 use srag\asq\Application\Service\AsqServices;
 use srag\asq\Domain\QuestionDto;
 use srag\asq\Infrastructure\Helpers\PathHelper;
-use srag\asq\QuestionPool\Module\QuestionService\ASQModule;
 use srag\asq\QuestionPool\Module\Storage\QuestionPoolStorage;
 use srag\asq\QuestionPool\Module\Taxonomy\TaxonomyModule;
 
@@ -39,7 +38,9 @@ class QuestionListGUI extends AbstractAsqModule
     use LanguageTrait;
 
     const CMD_DELETE_QUESTION = 'deleteQuestion';
-    const CMD_SHOW_QUESTIONS = "showQuestions";
+    const CMD_SHOW_QUESTIONS = 'showQuestions';
+
+    const TAB_QUESTIONS = 'tab_questions';
 
     const COL_ID = 'QUESTION_ID';
     const COL_TITLE = 'QUESTION_TITLE';
@@ -63,20 +64,13 @@ class QuestionListGUI extends AbstractAsqModule
 
     private TaxonomyModule $taxonomies;
 
-    public function __construct(IEventQueue $event_queue, IObjectAccess $access)
+    protected function initialize() : void
     {
-        parent::__construct($event_queue, $access);
-
         global $ASQDIC, $DIC;
         $this->asq_service = $ASQDIC->asq();
         $this->uuid_factory = new Factory();
         $this->data = $this->access->getStorage();
         $this->taxonomies = $this->access->getModule(TaxonomyModule::class);
-
-        $this->raiseEvent(new AddTabEvent(
-            $this,
-            new TabDefinition(self::class, 'Questions', self::CMD_SHOW_QUESTIONS)
-        ));
     }
 
     public function showQuestions() : void
@@ -218,5 +212,32 @@ class QuestionListGUI extends AbstractAsqModule
             self::CMD_SHOW_QUESTIONS,
             self::CMD_DELETE_QUESTION
         ];
+    }
+
+    public function getModuleDefinition(): IModuleDefinition
+    {
+        return new ModuleDefinition(
+            ModuleDefinition::NO_CONFIG,
+            [
+                new CommandDefinition(
+                    self::CMD_SHOW_QUESTIONS,
+                    CommandDefinition::ACCESS_STAFF,
+                    self::TAB_QUESTIONS
+                ),
+                new CommandDefinition(
+                    self::CMD_DELETE_QUESTION,
+                    CommandDefinition::ACCESS_ADMIN,
+                    self::TAB_QUESTIONS
+                )
+            ],
+            [],
+            [
+                new TabDefinition(
+                    self::TAB_QUESTIONS,
+                    'asqp_questions',
+                    self::CMD_SHOW_QUESTIONS
+                )
+            ]
+        );
     }
 }

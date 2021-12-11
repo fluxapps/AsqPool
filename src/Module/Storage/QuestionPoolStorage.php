@@ -26,13 +26,10 @@ class QuestionPoolStorage extends AbstractAsqModule implements IStorageModule
 
     protected QuestionPoolService $pool_service;
 
-    public function __construct(IEventQueue $event_queue, IObjectAccess $access, Uuid $pool_id)
+    protected function initialize() : void
     {
-        $this->pool_id = $pool_id;
+        $this->pool_id = $this->access->getReference()->getId();
         $this->pool_service = new QuestionPoolService();
-
-
-        parent::__construct($event_queue, $access);
     }
 
     public function getConfiguration(string $configuration_for): ?AbstractValueObject

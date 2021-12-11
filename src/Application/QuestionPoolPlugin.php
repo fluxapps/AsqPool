@@ -31,17 +31,10 @@ class QuestionPoolPlugin extends AbstractAsqPlugin
         $this->loadLanguageModule('asq');
         $this->loadLanguageModule(SetupAsqPoolLanguages::ASQ_POOL_LANGUAGE_PREFIX);
 
-        $storage = new QuestionPoolStorage($this->event_queue, $this->access, $reference->getId());
-        $this->addModule($storage);
-
-        $this->addModule(new ASQModule($this->event_queue, $this->access));
-
-        $this->addModule(new TaxonomyModule($this->event_queue, $this->access));
-
-        $this->addModule(new QuestionListGUI(
-            $this->event_queue,
-            $this->access
-        ));
+        $this->addModule(QuestionPoolStorage::class);
+        $this->addModule(ASQModule::class);
+        $this->addModule(TaxonomyModule::class);
+        $this->addModule(QuestionListGUI::class);
     }
 
     public static function load(ILIASReference $reference) : QuestionPoolPlugin

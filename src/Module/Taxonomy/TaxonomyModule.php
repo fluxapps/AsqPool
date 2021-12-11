@@ -6,19 +6,16 @@ namespace srag\asq\QuestionPool\Module\Taxonomy;
 use Fluxlabs\Assessment\Tools\DIC\CtrlTrait;
 use Fluxlabs\Assessment\Tools\DIC\KitchenSinkTrait;
 use Fluxlabs\Assessment\Tools\DIC\LanguageTrait;
-use Fluxlabs\Assessment\Tools\Domain\IObjectAccess;
 use Fluxlabs\Assessment\Tools\Domain\Modules\AbstractAsqModule;
-use Fluxlabs\Assessment\Tools\Event\IEventQueue;
-use Fluxlabs\Assessment\Tools\Event\Standard\AddTabEvent;
+use Fluxlabs\Assessment\Tools\Domain\Modules\Definition\CommandDefinition;
+use Fluxlabs\Assessment\Tools\Domain\Modules\Definition\ModuleDefinition;
+use Fluxlabs\Assessment\Tools\Domain\Modules\Definition\TabDefinition;
+use Fluxlabs\Assessment\Tools\Domain\Modules\IModuleDefinition;
 use Fluxlabs\Assessment\Tools\Event\Standard\ForwardToCommandEvent;
 use Fluxlabs\Assessment\Tools\Event\Standard\SetUIEvent;
 use Fluxlabs\Assessment\Tools\Service\Taxonomy\Taxonomy;
-use Fluxlabs\Assessment\Tools\UI\System\TabDefinition;
 use Fluxlabs\Assessment\Tools\UI\System\UIData;
 use ILIAS\Data\UUID\Uuid;
-use ilObjTaxonomy;
-use ilTaxonomyNode;
-use ilTaxonomyTree;
 use srag\asq\QuestionPool\Module\UI\QuestionListGUI;
 use srag\asq\UserInterface\Web\PostAccess;
 
@@ -45,29 +42,24 @@ class TaxonomyModule extends AbstractAsqModule
 
     const COMMAND_SHOW_CREATION_GUI = 'showCreateTaxonomy';
     const COMMAND_CREATE_TAXONOMY = 'createTaxonomy';
-    const COMMAND_SHOW_EDIT_TAXONOMY_GUI = 'showEdit';
+    const COMMAND_SHOW_EDIT_TAXONOMY_GUI = 'showTaxonomyEdit';
     const COMMAND_EDIT_TAXONOMY_NODE = 'editNode';
     const COMMAND_DELETE_TAXONOMY_NODE = 'deleteNode';
     const COMMAND_ADD_TAXONOMY_NODE = 'addNode';
     const COMMAND_SAVE_TAXONOMY_MAPPINGS = 'saveMapping';
 
+    const TAB_TAXONOMY = 'tab_taxonomy';
 
     private ?TaxonomyData $data;
 
     private Taxonomy $taxonomy;
 
-    public function __construct(IEventQueue $event_queue, IObjectAccess $access)
+    protected function initialize() : void
     {
-        parent::__construct($event_queue, $access);
-
         $this->data = $this->access->getStorage()->getConfiguration(self::TAXONOMY_KEY);
 
-        if ($this->hasTaxonomy()) {
-            $this->raiseEvent(new AddTabEvent(
-                $this,
-                new TabDefinition(self::class, 'Taxonomies', self::COMMAND_SHOW_EDIT_TAXONOMY_GUI)
-            ));
-
+        if ($this->hasTaxonomy())
+        {
             $this->taxonomy = new Taxonomy($this->data->getTaxonomyId());
         }
     }
@@ -101,7 +93,7 @@ class TaxonomyModule extends AbstractAsqModule
         $this->raiseEvent(new ForwardToCommandEvent($this, QuestionListGUI::CMD_SHOW_QUESTIONS));
     }
 
-    public function showEdit() : void
+    public function showTaxonomyEdit() : void
     {
         $gui = new TaxonomyEditGUI($this->taxonomy->getNodeMapping());
 
@@ -186,16 +178,55 @@ class TaxonomyModule extends AbstractAsqModule
         return self::TAX_POST_KEY . $id;
     }
 
-    public function getCommands(): array
+    public function getModuleDefinition(): IModuleDefinition
     {
-        return [
-            self::COMMAND_SHOW_CREATION_GUI,
-            self::COMMAND_CREATE_TAXONOMY,
-            self::COMMAND_SHOW_EDIT_TAXONOMY_GUI,
-            self::COMMAND_ADD_TAXONOMY_NODE,
-            self::COMMAND_EDIT_TAXONOMY_NODE,
-            self::COMMAND_DELETE_TAXONOMY_NODE,
-            self::COMMAND_SAVE_TAXONOMY_MAPPINGS
-        ];
+        return new ModuleDefinition(
+            ModuleDefinition::NO_CONFIG,
+            [
+                new CommandDefinition(
+                    self::COMMAND_SHOW_CREATION_GUI,
+                    CommandDefinition::ACCESS_STAFF,
+                    self::TAB_TAXONOMY
+                ),
+                new CommandDefinition(
+                    self::COMMAND_CREATE_TAXONOMY,
+                    CommandDefinition::ACCESS_ADMIN,
+                    self::TAB_TAXONOMY
+                ),
+                new CommandDefinition(
+                    self::COMMAND_SHOW_EDIT_TAXONOMY_GUI,
+                    CommandDefinition::ACCESS_ADMIN,
+                    self::TAB_TAXONOMY
+                ),
+                new CommandDefinition(
+                    self::COMMAND_ADD_TAXONOMY_NODE,
+                    CommandDefinition::ACCESS_ADMIN,
+                    self::TAB_TAXONOMY
+                ),
+                new CommandDefinition(
+                    self::COMMAND_EDIT_TAXONOMY_NODE,
+                    CommandDefinition::ACCESS_ADMIN,
+                    self::TAB_TAXONOMY
+                ),
+                new CommandDefinition(
+                    self::COMMAND_DELETE_TAXONOMY_NODE,
+                    CommandDefinition::ACCESS_ADMIN,
+                    self::TAB_TAXONOMY
+                ),
+                new CommandDefinition(
+                    self::COMMAND_SAVE_TAXONOMY_MAPPINGS,
+                    CommandDefinition::ACCESS_ADMIN,
+                    self::TAB_TAXONOMY
+                )
+            ],
+            [],
+            [
+                new TabDefinition(
+                    self::TAB_TAXONOMY,
+                    'asqp_taxonomy',
+                    self::COMMAND_SHOW_EDIT_TAXONOMY_GUI
+                )
+            ]
+        );
     }
 }
