@@ -147,7 +147,7 @@ class QuestionListGUI extends AbstractAsqModule
             $question_array[self::COL_EDIT_LINK] = $this->getRowActions($question_dto);
             $question_array[self::COL_VERSIONS] = $this->getVersionsInfo($item);
             $question_array[self::COL_STATUS] = $this->getStatus($question_dto);
-            $question_array[self::COL_ID] = $question_dto->getId();
+            $question_array[self::COL_ID] = $question_dto->getId()->toString();
             $question_array[self::COL_TAXONOMY] = $this->taxonomies->renderTaxonomySelection($question_dto->getId());
 
             $assoc_array[] = $question_array;
