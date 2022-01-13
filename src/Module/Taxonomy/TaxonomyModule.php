@@ -7,6 +7,7 @@ use Fluxlabs\Assessment\Tools\DIC\CtrlTrait;
 use Fluxlabs\Assessment\Tools\DIC\KitchenSinkTrait;
 use Fluxlabs\Assessment\Tools\DIC\LanguageTrait;
 use Fluxlabs\Assessment\Tools\Domain\Modules\AbstractAsqModule;
+use Fluxlabs\Assessment\Tools\Domain\Modules\Access\AccessConfiguration;
 use Fluxlabs\Assessment\Tools\Domain\Modules\Definition\CommandDefinition;
 use Fluxlabs\Assessment\Tools\Domain\Modules\Definition\ModuleDefinition;
 use Fluxlabs\Assessment\Tools\Domain\Modules\Definition\TabDefinition;
@@ -185,37 +186,37 @@ class TaxonomyModule extends AbstractAsqModule
             [
                 new CommandDefinition(
                     self::COMMAND_SHOW_CREATION_GUI,
-                    CommandDefinition::ACCESS_STAFF,
+                    AccessConfiguration::ACCESS_STAFF,
                     self::TAB_TAXONOMY
                 ),
                 new CommandDefinition(
                     self::COMMAND_CREATE_TAXONOMY,
-                    CommandDefinition::ACCESS_ADMIN,
+                    AccessConfiguration::ACCESS_ADMIN,
                     self::TAB_TAXONOMY
                 ),
                 new CommandDefinition(
                     self::COMMAND_SHOW_EDIT_TAXONOMY_GUI,
-                    CommandDefinition::ACCESS_ADMIN,
+                    AccessConfiguration::ACCESS_ADMIN,
                     self::TAB_TAXONOMY
                 ),
                 new CommandDefinition(
                     self::COMMAND_ADD_TAXONOMY_NODE,
-                    CommandDefinition::ACCESS_ADMIN,
+                    AccessConfiguration::ACCESS_ADMIN,
                     self::TAB_TAXONOMY
                 ),
                 new CommandDefinition(
                     self::COMMAND_EDIT_TAXONOMY_NODE,
-                    CommandDefinition::ACCESS_ADMIN,
+                    AccessConfiguration::ACCESS_ADMIN,
                     self::TAB_TAXONOMY
                 ),
                 new CommandDefinition(
                     self::COMMAND_DELETE_TAXONOMY_NODE,
-                    CommandDefinition::ACCESS_ADMIN,
+                    AccessConfiguration::ACCESS_ADMIN,
                     self::TAB_TAXONOMY
                 ),
                 new CommandDefinition(
                     self::COMMAND_SAVE_TAXONOMY_MAPPINGS,
-                    CommandDefinition::ACCESS_ADMIN,
+                    AccessConfiguration::ACCESS_ADMIN,
                     self::TAB_TAXONOMY
                 )
             ],

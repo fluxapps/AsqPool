@@ -7,6 +7,7 @@ use Fluxlabs\Assessment\Tools\DIC\CtrlTrait;
 use Fluxlabs\Assessment\Tools\DIC\KitchenSinkTrait;
 use Fluxlabs\Assessment\Tools\DIC\LanguageTrait;
 use Fluxlabs\Assessment\Tools\Domain\Modules\AbstractAsqModule;
+use Fluxlabs\Assessment\Tools\Domain\Modules\Access\AccessConfiguration;
 use Fluxlabs\Assessment\Tools\Domain\Modules\Definition\CommandDefinition;
 use Fluxlabs\Assessment\Tools\Domain\Modules\Definition\ModuleDefinition;
 use Fluxlabs\Assessment\Tools\Domain\Modules\Definition\TabDefinition;
@@ -221,12 +222,12 @@ class QuestionListGUI extends AbstractAsqModule
             [
                 new CommandDefinition(
                     self::CMD_SHOW_QUESTIONS,
-                    CommandDefinition::ACCESS_STAFF,
+                    AccessConfiguration::ACCESS_STAFF,
                     self::TAB_QUESTIONS
                 ),
                 new CommandDefinition(
                     self::CMD_DELETE_QUESTION,
-                    CommandDefinition::ACCESS_ADMIN,
+                    AccessConfiguration::ACCESS_ADMIN,
                     self::TAB_QUESTIONS
                 )
             ],
