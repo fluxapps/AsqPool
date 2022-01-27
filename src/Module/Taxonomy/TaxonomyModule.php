@@ -176,7 +176,7 @@ class TaxonomyModule extends AbstractAsqModule
 
     private function getTaxonomyPostName(Uuid $id) : string
     {
-        return self::TAX_POST_KEY . $id;
+        return self::TAX_POST_KEY . $id->toString();
     }
 
     public function getModuleDefinition(): IModuleDefinition
