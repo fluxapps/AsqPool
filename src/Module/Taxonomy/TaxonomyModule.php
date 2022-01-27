@@ -225,7 +225,8 @@ class TaxonomyModule extends AbstractAsqModule
                 new TabDefinition(
                     self::TAB_TAXONOMY,
                     'asqp_taxonomy',
-                    self::COMMAND_SHOW_EDIT_TAXONOMY_GUI
+                    self::COMMAND_SHOW_EDIT_TAXONOMY_GUI,
+                    TabDefinition::PRIORITY_LOW
                 )
             ]
         );
