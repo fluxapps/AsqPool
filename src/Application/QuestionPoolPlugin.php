@@ -6,6 +6,7 @@ namespace srag\asq\QuestionPool\Application;
 use Fluxlabs\Assessment\Tools\DIC\LanguageTrait;
 use Fluxlabs\Assessment\Tools\Domain\AbstractAsqPlugin;
 use Fluxlabs\Assessment\Tools\Domain\ILIASReference;
+use Fluxlabs\Assessment\Tools\Domain\Modules\IliasOnline\IliasOnlineModule;
 use ILIAS\Data\UUID\Uuid;
 use srag\asq\QuestionPool\Infrastructure\Setup\lang\SetupAsqPoolLanguages;
 use srag\asq\QuestionPool\Module\QuestionService\ASQModule;
@@ -35,6 +36,7 @@ class QuestionPoolPlugin extends AbstractAsqPlugin
         $this->addModule(ASQModule::class);
         $this->addModule(TaxonomyModule::class);
         $this->addModule(QuestionListGUI::class);
+        $this->addModule(IliasOnlineModule::class);
     }
 
     public static function load(ILIASReference $reference) : QuestionPoolPlugin
