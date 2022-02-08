@@ -12,6 +12,7 @@ use Fluxlabs\Assessment\Tools\Domain\Modules\Definition\CommandDefinition;
 use Fluxlabs\Assessment\Tools\Domain\Modules\Definition\ModuleDefinition;
 use Fluxlabs\Assessment\Tools\Domain\Modules\Definition\TabDefinition;
 use Fluxlabs\Assessment\Tools\Domain\Modules\IModuleDefinition;
+use Fluxlabs\Assessment\Tools\Event\Standard\ForwardToCommandEvent;
 use Fluxlabs\Assessment\Tools\Event\Standard\SetUIEvent;
 use Fluxlabs\Assessment\Tools\UI\Components\AsqTable;
 use Fluxlabs\Assessment\Tools\UI\System\UIData;
@@ -21,6 +22,7 @@ use ilUtil;
 use srag\asq\Application\Service\AsqServices;
 use srag\asq\Domain\QuestionDto;
 use srag\asq\Infrastructure\Helpers\PathHelper;
+use srag\asq\QuestionPool\Application\QuestionPoolService;
 use srag\asq\QuestionPool\Module\Storage\QuestionPoolStorage;
 use srag\asq\QuestionPool\Module\Taxonomy\TaxonomyModule;
 
@@ -40,6 +42,7 @@ class QuestionListGUI extends AbstractAsqModule
 
     const CMD_DELETE_QUESTION = 'deleteQuestion';
     const CMD_SHOW_QUESTIONS = 'showQuestions';
+    const PARAM_QUESTION_ID = 'question_id';
 
     const TAB_QUESTIONS = 'tab_questions';
 
@@ -50,12 +53,10 @@ class QuestionListGUI extends AbstractAsqModule
     const COL_VERSIONS = 'QUESTION_VERSIONS';
     const COL_STATUS = 'QUESTION_STATUS';
     const COL_TAXONOMY = 'QUESTION_TAXONOMY';
-    const COL_EDIT_LINK = "QUESTION_EDIT_LINK";
+    const COL_ACTIONS = "QUESTION_ACTIONS";
 
 
     const VAL_NO_TITLE = '-----';
-
-    private Uuid $pool_id;
 
     private QuestionPoolStorage $data;
 
@@ -94,11 +95,10 @@ class QuestionListGUI extends AbstractAsqModule
             self::COL_VERSIONS => $this->txt('asqp_versions'),
             self::COL_STATUS => $this->txt('asqp_status'),
             self::COL_TAXONOMY => $this->txt('asqp_taxonomy'),
-            self::COL_EDIT_LINK => ''
+            self::COL_ACTIONS => ''
         ],
         $this->getQuestionsAsAssocArray(),
         [
-            $this->txt('asqp_delete_question') => $this->getCommandLink(self::CMD_DELETE_QUESTION),
             $this->txt('asqp_save_taxonomies') => $this->getCommandLink(TaxonomyModule::COMMAND_SAVE_TAXONOMY_MAPPINGS)
         ]);
 
@@ -145,7 +145,7 @@ class QuestionListGUI extends AbstractAsqModule
             $question_array[self::COL_TITLE] = is_null($data) ? self::VAL_NO_TITLE : (empty($data->getTitle()) ? self::VAL_NO_TITLE : $data->getTitle());
             $question_array[self::COL_TYPE] = $this->txt($question_dto->getType()->getTitleKey());
             $question_array[self::COL_AUTHOR] = is_null($data) ? '' : $data->getAuthor();
-            $question_array[self::COL_EDIT_LINK] = $this->getRowActions($question_dto);
+            $question_array[self::COL_ACTIONS] = $this->getRowActions($question_dto);
             $question_array[self::COL_VERSIONS] = $this->getVersionsInfo($item);
             $question_array[self::COL_STATUS] = $this->getStatus($question_dto);
             $question_array[self::COL_ID] = $question_dto->getId()->toString();
@@ -188,23 +188,27 @@ class QuestionListGUI extends AbstractAsqModule
 
     private function getRowActions(QuestionDto $question) : string
     {
-        $link = $this->asq_service->link()->getEditLink($question->getId());
+        $edit_link = $this->asq_service->link()->getEditLink($question->getId());
+        $edit_button = $this->getKSFactory()->button()->shy($edit_link->getLabel(), $edit_link->getAction());
 
-        $button = $this->getKSFactory()->button()->shy($link->getLabel(), $link->getAction());
+        $this->setLinkParameter(self::PARAM_QUESTION_ID, $question->getId()->toString());
+        $delete_button = $this->getKSFactory()->button()->shy(
+            $this->txt('asqp_delete_question'),
+            $this->getCommandLink(self::CMD_DELETE_QUESTION)
+        );
 
-        return $this->renderKSComponent($button);
+        return $this->renderKSComponent($edit_button) . $this->renderKSComponent($delete_button);
     }
 
     public function deleteQuestion() : void
     {
-        if ($_POST['action'] === null) {
-            return;
-        }
+        $question_id = $this->getLinkParameter(self::PARAM_QUESTION_ID);
+        $pool_service = new QuestionPoolService();
 
-        foreach ($_POST['action'] as $question_id) {
-            $this->pool_service->removeQuestion($this->pool_id, $this->uuid_factory->fromString($question_id));
-            ilUtil::sendInfo($this->txt('asqp_question_removed'));
-        }
+        $pool_service->removeQuestion($this->data->getId(), $this->uuid_factory->fromString($question_id));
+        ilUtil::sendInfo($this->txt('asqp_question_removed'));
+
+        $this->raiseEvent(new ForwardToCommandEvent($this, self::CMD_SHOW_QUESTIONS));
     }
 
     public function getCommands(): array

@@ -32,6 +32,11 @@ class QuestionPoolStorage extends AbstractAsqModule implements IStorageModule
         $this->pool_service = new QuestionPoolService();
     }
 
+    public function getId() : Uuid
+    {
+        return $this->pool_id;
+    }
+
     public function getConfiguration(string $configuration_for): ?AbstractValueObject
     {
         return $this->pool_service->getConfiguration($this->pool_id, $configuration_for);
